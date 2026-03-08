@@ -6,8 +6,11 @@
  */
 
 import mongoose, { Mongoose } from "mongoose"
+import dns from "dns/promises"
 
 const MONGODB_URI = process.env.MONGODB_URI!
+
+dns.setServers(['8.8.8.8', '8.8.4.4'])
 
 if (!MONGODB_URI) {
   throw new Error('Missing environment variable: "MONGODB_URI"')

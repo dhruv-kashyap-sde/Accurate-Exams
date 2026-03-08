@@ -119,6 +119,76 @@ export async function findUserPurchases(
     .lean()
 }
 
+/**
+ * Fetch user purchases with full batch + exam details.
+ * Returns data ready for dashboard display.
+ */
+export async function findUserPurchasesWithDetails(userId: string) {
+  await dbConnect()
+
+  // Ensure all referenced models are registered
+  const { ensureModelsRegistered } = await import("@/lib/models/registry")
+  ensureModelsRegistered()
+
+  const BPModel = BatchPurchase()
+
+  const purchases = await BPModel.find({
+    userId: new Types.ObjectId(userId),
+  })
+    .populate({
+      path: "batchId",
+      populate: {
+        path: "exam",
+        select: "title slug imageURL",
+      },
+    })
+    .sort({ createdAt: -1 })
+    .lean()
+
+  // Get test counts for each batch
+  const getTestModel = (await import("@/lib/models/test")).default
+  const TestModel = getTestModel()
+
+  const enriched = await Promise.all(
+    purchases.map(async (purchase) => {
+      const batch = purchase.batchId as unknown as Record<string, unknown> | null
+      const batchObjId = batch?._id?.toString()
+      const totalTests = batchObjId
+        ? await TestModel.countDocuments({ batch: batchObjId })
+        : 0
+
+      return {
+        id: (purchase._id as Types.ObjectId).toString(),
+        validFrom: purchase.validFrom.toISOString(),
+        validTill: purchase.validTill.toISOString(),
+        status: purchase.status,
+        batch: batch
+          ? {
+              id: (batch._id as Types.ObjectId).toString(),
+              title: batch.title as string,
+              slug: batch.slug as string,
+              contentType: batch.contentType as string,
+              totalCount: batch.totalCount as number,
+              exam: batch.exam
+                ? {
+                    id: ((batch.exam as Record<string, unknown>)._id as Types.ObjectId).toString(),
+                    title: (batch.exam as Record<string, unknown>).title as string,
+                    slug: (batch.exam as Record<string, unknown>).slug as string,
+                    imageURL: ((batch.exam as Record<string, unknown>).imageURL as string | null),
+                  }
+                : null,
+            }
+          : null,
+        totalTests,
+        // TODO: replace with actual completed count once test attempts exist
+        testsCompleted: 0,
+      }
+    })
+  )
+
+  return enriched
+}
+
 export async function expireOldPurchases(): Promise<number> {
   await dbConnect()
   const BPModel = BatchPurchase()

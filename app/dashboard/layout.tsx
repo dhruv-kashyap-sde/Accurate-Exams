@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { ModeToggle } from "@/components/dark mode/toggle-theme";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -174,6 +175,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                   </AvatarFallback>
                 </Avatar>
               )}
+              <ModeToggle />
             </div>
           </div>
         </div>

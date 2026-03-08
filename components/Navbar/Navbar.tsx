@@ -268,8 +268,8 @@ export default function Navbar() {
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                      <Avatar className="h-10 w-10 cursor-pointer border-2 border-transparent hover:border-primary transition-colors">
+                    <button className="bg-card border cursor-pointer hover:border-primary pr-2 flex items-center gap-1 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">                      
+                      <Avatar className="h-10 w-10  border-2 border-transparent transition-colors">
                         <AvatarImage
                           src={user?.image || ""}
                           alt={user?.name || "User"}
@@ -278,6 +278,7 @@ export default function Navbar() {
                           {getInitials(user?.name || "User")}
                         </AvatarFallback>
                       </Avatar>
+                      <span className="text-sm">My Account</span>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-64">

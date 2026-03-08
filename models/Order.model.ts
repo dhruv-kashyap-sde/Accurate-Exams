@@ -77,7 +77,6 @@ const OrderSchema = new Schema<IOrderDocument>(
   }
 )
 
-OrderSchema.index({ providerOrderId: 1 }, { unique: true })
 OrderSchema.index({ userId: 1, batchId: 1 })
 
 function getOrderModel(): Model<IOrderDocument> {
